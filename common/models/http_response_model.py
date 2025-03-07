@@ -48,10 +48,10 @@ class AllowedGetResponseData(BaseModel):
         )
 
 class AllowedPostResponseData(BaseModel):
-    id: UUID                                    = Field(..., description="ID of the record")    
-    message_id: Optional[str]                    = Field(None, description="Message id of PubSub Entry")
-    input_data: Optional[list[dict]] = Field(None, description="Data attempted to insert")
-    error: Optional[str]                         = Field(None, description="Errors")
+    id: UUID                    = Field(..., description="ID of the record")    
+    message_id: Optional[str]   = Field(None, description="Message id of PubSub Entry")
+    input_data: Optional[dict]  = Field(None, description="Data attempted to insert")
+    error: Optional[str]        = Field(None, description="Errors")
 
     @field_validator('input_data')
     @classmethod
