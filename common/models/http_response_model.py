@@ -65,10 +65,18 @@ class HttpSerializableResponse(BaseModel):
     metadata: Optional[HttpResponseMetaData] = None
 
     def model_dump(self, **kwargs):
-        return {
-            'data': [item.model_dump() for item in self.data],
-            'metadata': self.metadata.model_dump() if self.metadata else None
-        }
+    # Start with the default Pydantic model_dump behavior to get all fields
+        result = super().model_dump(**kwargs)
+        
+        # Special handling for list of models in 'data' field
+        if 'data' in result and isinstance(self.data, list) and all(hasattr(item, 'model_dump') for item in self.data):
+            result['data'] = [item.model_dump(**kwargs) for item in self.data]
+        
+        # Special handling for nested models like metadata
+        if 'metadata' in result and self.metadata and hasattr(self.metadata, 'model_dump'):
+            result['metadata'] = self.metadata.model_dump(**kwargs)
+        
+        return result
 
     def to_json(self):
         return json.dumps(self.model_dump())
