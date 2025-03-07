@@ -68,6 +68,8 @@ class TestValidationCases:
 
     def test_valid_single_record(self, mock_pubsub_success):
         """Test submission of a single valid record."""
+        import ipdb; ipdb.set_trace()
+
         response = client.post("/prices", json=VALID_CRYPTO_PAYLOAD)
         
         assert response.status_code == 201
@@ -84,7 +86,7 @@ class TestValidationCases:
             VALID_CRYPTO_PAYLOAD[0],
             {**VALID_CRYPTO_PAYLOAD[0], "crypto_name": "Ethereum", "crypto_symbol": "ETH"}
         ]
-        
+
         response = client.post("/prices", json=multi_payload)
         
         assert response.status_code == 201
