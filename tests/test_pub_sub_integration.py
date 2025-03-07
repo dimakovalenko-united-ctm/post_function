@@ -384,8 +384,10 @@ class TestAVROSchemaCompliance:
         mock_publisher.publish.return_value = mock_future
         
         # Create minimal test record
+        # Create minimal test record
         current_time = generate_iso_timestamp(0)
         test_record = {
+            "id": str(uuid.uuid4()),  # Add ID field for testing
             "crypto_name": "Bitcoin",
             "crypto_symbol": "BTC",
             "fiat_currency": "USD",
