@@ -45,6 +45,7 @@ pyyaml
 ruff
 pytest
 httpx
+pytest-cov
 # unittest
 # unittest.mock.patch
 # datetime
