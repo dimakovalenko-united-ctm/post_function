@@ -3,7 +3,7 @@ import uuid
 import json
 import os
 from common.fastapi_app import create_fastapi_app
-from fastapi import HTTPException
+from fastapi import HTTPException, Body
 from fastapi.responses import JSONResponse
 from common.local_runner import run_local
 from google.cloud import pubsub_v1
@@ -11,6 +11,8 @@ from common.models.http_response_model import HttpSerializableResponse, HttpResp
 from common.models.http_query_params import PostData
 from common.logging_utils import info, error, audit, warning, debug, exception
 from typing import List
+from pydantic import validator
+
 
 from datetime import timezone
 
@@ -94,7 +96,7 @@ def publish_message_to_pubsub(project_id, topic_id, message_data: dict):
                             202: {"model": ErrorResponse, "description": "No records written, check response for failures"}
                         }
         )
-def create_crypto(data: List[PostData]):            
+def create_crypto(data: List[PostData] = Body(..., min_items=1)):
     """
     Create new cryptocurrency price records via Pub/Sub.
     
@@ -107,6 +109,10 @@ def create_crypto(data: List[PostData]):
     Raises:
         HTTPException: If processing fails
     """
+    
+    if not data:
+        raise HTTPException(status_code=422, detail="Request body cannot be empty")
+
     try:
         success_records = []
         failed_records  = []
@@ -114,6 +120,7 @@ def create_crypto(data: List[PostData]):
         for input_record in data:        
             debug(f"Processing record: {input_record.model_dump_json()}")        
             record_id = uuid.uuid4()  # Generate UUID for DB record
+
             meta_data_start_time = DateTime.now(timezone.utc)
 
             # Prepare the complete record for PubSub
@@ -142,7 +149,7 @@ def create_crypto(data: List[PostData]):
                 failed_records.append(failure)                
 
         metadata_finish_timestamp = DateTime.now()
-
+        
         metadata = HttpResponseMetaData(
             rows             = len(success_records + failed_records),
             finish_timestamp = metadata_finish_timestamp,

@@ -76,7 +76,7 @@ class TestValidationCases:
     def test_valid_single_record(self, mock_pubsub_success):
         """Test submission of a single valid record."""
         response = client.post("/prices", json=VALID_CRYPTO_PAYLOAD)
-        
+
         assert response.status_code == 201
         data = response.json()
         assert data["status"] == "success"
@@ -114,7 +114,7 @@ class TestValidationCases:
         assert any("crypto_name" in str(error["loc"]) for error in data["detail"])
 
     def test_empty_payload(self):
-        """Test validation with an empty payload."""
+        """Test validation with an empty payload."""        
         response = client.post("/prices", json=[])
         
         assert response.status_code == 422
