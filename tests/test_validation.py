@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-
-#!/usr/bin/env python
 """
 Comprehensive test suite for data validation in the pricing service.
 Tests cover model validation, schema conformance, and data integrity.
@@ -8,8 +6,14 @@ Tests cover model validation, schema conformance, and data integrity.
 
 import pytest
 import json
+import sys
+import os
 from datetime import datetime, timezone, timedelta
 from pydantic import ValidationError
+
+# Add the project root to the Python path
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, project_root)
 
 # Import your models
 from common.models.http_query_params import PostData

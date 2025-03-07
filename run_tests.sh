@@ -9,6 +9,10 @@ NC='\033[0m' # No Color
 
 echo -e "${YELLOW}Setting up test environment...${NC}"
 
+# Make the current directory the project root
+PROJECT_ROOT=$(pwd)
+export PYTHONPATH=$PROJECT_ROOT
+
 # Check if virtual environment exists, create if not
 if [ ! -d ".venv" ]; then
   echo -e "${YELLOW}Creating virtual environment...${NC}"
@@ -18,24 +22,24 @@ fi
 # Activate virtual environment
 source .venv/bin/activate
 
-# Install in development mode for proper imports
-echo -e "${YELLOW}Installing package in development mode...${NC}"
-pip install -e . --quiet
+# Install dependencies
+echo -e "${YELLOW}Installing dependencies...${NC}"
+pip install -r requirements.txt
 
-# Install test dependencies
-echo -e "${YELLOW}Installing test dependencies...${NC}"
-pip install pytest pytest-cov --quiet
-
-# Create __init__.py in tests directory if it doesn't exist
-mkdir -p tests
-if [ ! -f "tests/__init__.py" ]; then
-  echo "# Test package" > tests/__init__.py
-  echo -e "${GREEN}Created tests/__init__.py${NC}"
+# Create symlink to common directory if it doesn't exist
+if [ ! -d "common" ]; then
+  echo -e "${YELLOW}Creating symlink to common directory...${NC}"
+  ln -s ../../common common
 fi
 
 # Run the tests
-echo -e "${YELLOW}Running tests...${NC}"
-PYTHONPATH=. pytest "$@"
+if [ "$#" -eq 0 ]; then
+  echo -e "${YELLOW}Running all tests...${NC}"
+  python -m pytest tests/
+else
+  echo -e "${YELLOW}Running specified tests...${NC}"
+  python -m pytest "$@"
+fi
 
 # Display completion message
 if [ $? -eq 0 ]; then

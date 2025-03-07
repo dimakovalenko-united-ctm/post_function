@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-#!/usr/bin/env python
 """
 Configuration file for pytest.
 Provides shared fixtures for testing the pricing service.
@@ -7,11 +6,16 @@ Provides shared fixtures for testing the pricing service.
 
 import pytest
 import os
+import sys
 import json
 import uuid
 from unittest.mock import patch, MagicMock
 from datetime import datetime, timezone
 from fastapi.testclient import TestClient
+
+# Add the project root to the Python path
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, project_root)
 
 # Import the main app
 from main import app
