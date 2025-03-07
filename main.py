@@ -3,7 +3,7 @@ import uuid
 import json
 import os
 from common.fastapi_app import create_fastapi_app
-from fastapi import HTTPException, Body
+from fastapi import HTTPException, Body, Request
 from fastapi.responses import JSONResponse
 from common.local_runner import run_local
 from google.cloud import pubsub_v1
@@ -192,6 +192,13 @@ def create_crypto(data: List[PostData] = Body(..., min_items=1)):
     except Exception as e:
         exception(f"Unhandled exception: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+@app.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal Server Error"}
+    )
 
 
 if __name__ == "__main__":

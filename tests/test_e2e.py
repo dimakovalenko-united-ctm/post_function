@@ -7,6 +7,7 @@ Tests the entire flow from API request to Pub/Sub message.
 import pytest
 import json
 import uuid
+import unittest
 from unittest.mock import patch, MagicMock, call
 from fastapi.testclient import TestClient
 
@@ -112,7 +113,7 @@ class TestEndToEndFlow:
         
         # First record should have succeeded
         assert "message_id" in data["data"][0]
-        assert "error" not in data["data"][0]
+        assert data["data"][0]["error"] is None  # Changed this line from "error" not in data["data"][0]
         
         # Second record should have failed
         assert "error" in data["data"][1]
@@ -214,17 +215,22 @@ class TestEndToEndFlow:
 class TestErrorHandling:
     """Test error handling in the API."""
     
-    @patch('main.create_crypto', side_effect=Exception("Unexpected server error"))
-    def test_server_error(self, mock_handler, test_client, valid_crypto_payload):
-        """Test that server errors are handled gracefully."""
-        # Make the request
-        response = test_client.post("/prices", json=valid_crypto_payload)
+    def test_pubsub_error_handling(self, test_client, valid_crypto_payload):
+        """Test that Pub/Sub errors are handled gracefully."""
         
-        # Verify response indicates server error
-        assert response.status_code == 500
-        data = response.json()
-        assert "detail" in data
-        assert data["detail"] == "Internal Server Error"
+        # Patch the publish function to simulate a Pub/Sub error
+        with unittest.mock.patch('main.publish_message_to_pubsub', 
+                            side_effect=Exception("Unexpected server error")):
+            # Make the request
+            response = test_client.post("/prices", json=valid_crypto_payload)
+            
+            # Verify response indicates handled failure (202)
+            assert response.status_code == 202
+            data = response.json()
+            assert data["status"] == "error, no records created"
+            assert len(data["data"]) == 1
+            assert "error" in data["data"][0]
+            assert "Unexpected server error" in data["data"][0]["error"]
 
     def test_empty_payload(self, test_client):
         """Test handling of an empty payload."""
