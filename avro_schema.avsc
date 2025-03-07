@@ -1,0 +1,103 @@
+{
+  "type": "record",
+  "name": "CryptoData",
+  "namespace": "com.unitedctm.pricing-service.crypto",
+  "doc": "Schema representing cryptocurrency data for Pub/Sub.",
+  "fields": [
+    {
+      "name": "close",
+      "type": "float",
+      "doc": "Closing price of the cryptocurrency."
+    },
+    {
+      "name": "crypto_name",
+      "type": "string",
+      "doc": "Full name of the cryptocurrency."
+    },
+    {
+      "name": "crypto_symbol",
+      "type": "string",
+      "doc": "Symbol of the cryptocurrency (e.g., BTC, ETH)."
+    },
+    {
+      "name": "dividends",
+      "type": "float",
+      "default": 0.0,
+      "doc": "Dividends paid (if applicable)."
+    },
+    {
+      "name": "fiat_currency",
+      "type": "string",
+      "doc": "Fiat currency the price is denominated in (e.g., USD, EUR)."
+    },
+    {
+      "name": "high",
+      "type": "float",
+      "doc": "Highest price during the period."
+    },
+    {
+      "name": "id",
+      "type": "string",
+      "doc": "Unique identifier for the data point."
+    },
+    {
+      "name": "is_deleted",
+      "type": "boolean",
+      "default": false,
+      "doc": "Indicates if the data point has been deleted."
+    },
+    {
+      "name": "low",
+      "type": "float",
+      "doc": "Lowest price during the period."
+    },
+    {
+      "name": "open",
+      "type": "float",
+      "doc": "Opening price of the cryptocurrency."
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "doc": "Source of the data (e.g., exchange name)."
+    },
+    {
+      "name": "stock_splits",
+      "type": "float",
+      "default": 0.0,
+      "doc": "Stock splits (if applicable)."
+    },
+    {
+      "name": "ticker",
+      "type": "string",
+      "doc": "Ticker symbol of the cryptocurrency."
+    },
+    {
+      "name": "insertion_timestamp",
+      "type": {
+        "type": "string",
+        "doc": "ISO 8601 timestamp"
+      },
+      "doc": "Timestamp of the data point in microseconds since epoch."
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "string",
+        "doc": "ISO 8601 timestamp"
+      },
+      "doc": "Timestamp of the data point in microseconds since epoch."
+    },
+    {
+      "name": "volume",
+      "type": "float",
+      "doc": "Trading volume during the period."
+    },
+    {
+      "name": "metadata",
+      "type": "string",
+      "default": "",
+      "doc": "Optional JSON metadata associated with the data point."
+    }
+  ]
+}

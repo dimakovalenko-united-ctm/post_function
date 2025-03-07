@@ -1,0 +1,53 @@
+--index-url https://us-central1-python.pkg.dev/dev-test-staging/all-python/simple/ #Use internal repo which also caches public pypi.org
+
+#Packages needed by this project
+python-dateutil
+vellox
+pydantic
+fastapi
+uvicorn
+python-dotenv
+# openapi
+# fastapi_swagger2
+google-cloud-logging>=3.0.0
+google-cloud-pubsub
+# pydantic-avro #Take pydantic model and make it into Avro Schema
+# betterproto
+google-cloud-bigquery
+google-cloud-bigquery-storage
+# pandas
+pytz
+# db-dtypes
+colorama>=0.4.4
+lxml
+pyyaml
+
+#GCLOUD
+# gcloud
+# google-cloud-functions-framework
+# google-cloud-error-reporting
+# MarkupSafe
+# google-cloud-storage
+
+
+# Web Service
+# flask
+# fastapi[standard]
+# uvicorn #Needed by fastapi
+
+#Generally useful packages
+# python-dotenv
+
+#Debbunging
+# ipdb
+
+#Testing
+ruff
+# unittest
+# unittest.mock.patch
+# datetime
+# StringIO
+
+#Package uploader, leave it in Jenkinsfile uses it, you should not
+# twine
+# setuptools
