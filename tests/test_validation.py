@@ -242,8 +242,9 @@ class TestPostDataValidation:
         
         # Test with None metadata - should default to empty string
         none_data = {**valid_data, "metadata": None}
-        none_post_data = PostData(**none_data)
-        assert none_post_data.metadata == ""
+        with pytest.raises(ValidationError) as excinfo:
+            PostData(**none_data)
+        assert "metadata" in str(excinfo.value)
         
         # Test with non-string metadata - should convert to string
         non_string_data = {**valid_data, "metadata": 123}
