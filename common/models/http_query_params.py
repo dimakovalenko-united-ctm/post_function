@@ -149,6 +149,8 @@ class HttpQueryParams(AllAllowedQueryReturns):
 class OptionalFieldsModified(OptionalFields):
     """Extended OptionalFields with metadata guaranteed to be empty string instead of None"""
     metadata: str = Field(default="", description="String encoded JSON with no strict structure.")
+    # Make timestamp optional with a default value that uses current time
+    timestamp: DateTime = Field(default_factory=DateTime.now, description="ISO 8601 timestamp. Defaults to current time if not provided.")
 
 class PostData(RequiredFields, OptionalFieldsModified):
     """

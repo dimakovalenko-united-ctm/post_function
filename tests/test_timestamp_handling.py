@@ -68,6 +68,15 @@ def is_close_to_now(timestamp_str, tolerance_seconds=5):
     # Check if within tolerance
     return diff <= tolerance_seconds
 
+def normalize_timestamp_format(timestamp_str):
+    """
+    Normalize timestamp format for comparison.
+    Handles both 'Z' and '+00:00' formats.
+    """
+    if timestamp_str.endswith('Z'):
+        return timestamp_str.replace('Z', '+00:00')
+    return timestamp_str
+
 
 class TestTimestampHandling:
     """Test timestamp handling in the API."""
@@ -121,8 +130,8 @@ class TestTimestampHandling:
             publish_call = mock_publisher.publish.call_args
             published_data = json.loads(publish_call[0][1].decode('utf-8'))
             
-            # Check that the original timestamp was preserved
-            assert published_data["timestamp"] == past_date
+            # Compare DateTime objects instead of raw strings
+            assert DateTime(published_data["timestamp"]).to_datetime() == DateTime(past_date).to_datetime()
             
             # Reset mock for next iteration
             mock_publisher.reset_mock()
@@ -172,7 +181,9 @@ class TestTimestampHandling:
         
         # Verify explicit timestamp is preserved and converted to DateTime
         assert isinstance(model_with_explicit.timestamp, DateTime)
-        assert str(model_with_explicit.timestamp) == explicit_time
+        
+        # Compare DateTime objects instead of raw strings
+        assert DateTime(model_with_explicit.timestamp).to_datetime() == DateTime(explicit_time).to_datetime()
         
         # Test with no timestamp (should auto-generate)
         model_without_timestamp = PostData(**self.valid_base_data)

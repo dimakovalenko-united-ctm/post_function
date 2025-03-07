@@ -189,6 +189,18 @@ class ApprovedDateTime(str):
             dt = dt.replace(tzinfo=tzinfo)
         return ApprovedDateTime(dt)
 
+    def normalize_timestamp_format(timestamp_str):
+        """
+        Normalize timestamp format for comparison.
+        Handles both 'Z' and '+00:00' formats.
+        """
+        if timestamp_str.endswith('Z'):
+            return timestamp_str
+        elif timestamp_str.endswith('+00:00'):
+            # Convert +00:00 to Z format for comparison
+            return timestamp_str.replace('+00:00', 'Z')
+        return timestamp_str
+
     def in_past(self, reference_time: Optional[Union[str, datetime, 'ApprovedDateTime']] = None) -> bool:
         """
         Check if this datetime is in the past.
