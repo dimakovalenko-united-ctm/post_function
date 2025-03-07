@@ -155,18 +155,11 @@ class PostData(RequiredFields, OptionalFieldsModified):
     Data model for POST requests. 
     Ensures metadata is always a string, never null to comply with AVRO schema.
     """
-
-    class PostData(RequiredFields, OptionalFieldsModified):
-        """
-        Data model for POST requests. 
-        Ensures metadata is always a string, never null to comply with AVRO schema.
-        """
-        
-        @field_validator('timestamp')
-        @classmethod
-        def validate_timestamp(cls, v):
-            """Ensure timestamp is converted to DateTime object"""
-            if not isinstance(v, DateTime):
-                return DateTime(v)
-            return v
-    pass
+    
+    @field_validator('timestamp', mode='after')
+    @classmethod
+    def validate_timestamp(cls, v):
+        """Ensure timestamp is converted to DateTime object"""
+        if v and not isinstance(v, DateTime):
+            return DateTime(v)
+        return v

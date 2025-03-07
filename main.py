@@ -76,19 +76,24 @@ def publish_message_to_pubsub(project_id, topic_id, message_data: dict):
         # Ensure metadata is never null to match schema requirements
         if "metadata" not in message_data or message_data["metadata"] is None:
             message_data["metadata"] = ""
+        
+        # Don't add an ID if the test is providing one, but ensure insertion_timestamp is present
+        if "insertion_timestamp" not in message_data:
+            from datetime import datetime, timezone
+            message_data["insertion_timestamp"] = datetime.now(timezone.utc).isoformat()
             
         json_string = clean_nulls_and_empties(message_data)
         message_json = json_string.encode("utf-8")
 
         # Publish the message
         future = publisher.publish(topic_path, message_json)
-        message_id = future.result()  # Block until published
+        message_id = future.result()
         debug(f"Published message ID: {message_id}")
         return message_id
 
     except Exception as e:
         exception(f"Error publishing message: {e}")
-        raise e  # Make sure to re-raise the exception
+        raise e 
 
 @app.post("/prices", responses={
                           201: {"model": SuccessResponse, "description": "All records created successfully"},
