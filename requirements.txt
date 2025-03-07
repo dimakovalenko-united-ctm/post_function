@@ -43,6 +43,8 @@ pyyaml
 
 #Testing
 ruff
+pytest
+httpx
 # unittest
 # unittest.mock.patch
 # datetime

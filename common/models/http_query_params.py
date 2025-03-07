@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import pytz
 from datetime import timedelta, timezone
-from pydantic import BaseModel, field_validator, ConfigDict
+from pydantic import BaseModel, field_validator, ConfigDict, Field
 from fastapi import Query
 from common.models.time_intervals import TimeInterval
 from common.models.date_time_iso8601 import ApprovedDateTime as DateTime
@@ -146,5 +146,13 @@ class HttpQueryParams(AllAllowedQueryReturns):
         
         return v  # Return end_date
 
-class PostData(RequiredFields, OptionalFields):
+class OptionalFieldsModified(OptionalFields):
+    """Extended OptionalFields with metadata guaranteed to be empty string instead of None"""
+    metadata: str = Field(default="", description="String encoded JSON with no strict structure.")
+
+class PostData(RequiredFields, OptionalFieldsModified):
+    """
+    Data model for POST requests. 
+    Ensures metadata is always a string, never null to comply with AVRO schema.
+    """
     pass
