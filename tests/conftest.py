@@ -174,12 +174,16 @@ def mock_pubsub_partial_failure():
         instance = mock_publisher.return_value
         instance.topic_path.return_value = "projects/test-project/topics/test-topic"
         
+        # Setup for tracking calls
+        call_counter = [0]  # Use a list so we can modify it inside the closure
+        
         # First call succeeds, second fails
         mock_future = MagicMock()
         mock_future.result.return_value = str(uuid.uuid4())
         
         def side_effect(*args, **kwargs):
-            if mock_publisher.publish.call_count == 1:
+            call_counter[0] += 1
+            if call_counter[0] == 1:
                 return mock_future
             else:
                 raise Exception("Pub/Sub error on second record")

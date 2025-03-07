@@ -152,40 +152,39 @@ def create_crypto(data: List[PostData] = Body(..., min_items=1)):
             start_timestamp  = meta_data_start_time
         )
 
-        if success_records and failed_records:            
-            post_return  = WarningResponse(
-                data     = (success_records + failed_records),
+        if success_records and failed_records:
+            # This is the partial success case (207)
+            post_return = WarningResponse(
+                data = success_records + failed_records,
                 metadata = metadata
             )
             warning(f"Operation succeeded with warnings: {post_return}")
-            return JSONResponse(status_code = 207, content=post_return.model_dump())
-
+            return JSONResponse(status_code=207, content=post_return.model_dump())
         elif success_records and not failed_records:
+            # This is the complete success case (201)
             post_return = SuccessResponse(
-                data     = success_records,
+                data = success_records,
                 metadata = metadata
             )
             info(f"Operation succeeded without errors: {post_return}")
-            return JSONResponse(status_code = 201, content=post_return.model_dump())
-
-        else:            
+            return JSONResponse(status_code=201, content=post_return.model_dump())
+        else:
+            # This is the complete failure case (202)
             try:
-                # Make sure your ErrorResponse is correctly structured
                 post_return = ErrorResponse(
-                    data     = failed_records,
+                    data = failed_records,
                     metadata = metadata
                 )
                 error(f"Operation failed: {post_return}")
-                return JSONResponse(status_code = 202, content=post_return.model_dump())
+                return JSONResponse(status_code=202, content=post_return.model_dump())
             except Exception as e:
-                # Catch any validation errors in the response creation
+                # Handle validation errors in the response creation
                 exception(f"Error creating error response: {e}")
-                # Create a simpler error response that won't fail validation
                 return JSONResponse(
-                    status_code = 202, 
-                    content = {
+                    status_code=202, 
+                    content={
                         "status": "error, no records created",
-                        "data": [{"id": record_id, "error": "Processing error"}],
+                        "data": [{"id": str(uuid.uuid4()), "error": "Processing error"}],
                         "metadata": {"rows": len(failed_records)}
                     }
                 )
