@@ -91,23 +91,14 @@ def publish_message_to_pubsub(project_id, topic_id, message_data: dict):
         raise e  # Make sure to re-raise the exception
 
 @app.post("/prices", responses={
-                            201: {"model": SuccessResponse, "description": "All records created successfully"},
-                            207: {"model": WarningResponse, "description": "Partial success, some records created others failed. Check response for errors."},
-                            202: {"model": ErrorResponse, "description": "No records written, check response for failures"}
-                        }
-        )
+                          201: {"model": SuccessResponse, "description": "All records created successfully"},
+                          207: {"model": WarningResponse, "description": "Partial success, some records created others failed. Check response for errors."},
+                          202: {"model": ErrorResponse, "description": "No records written, check response for failures"}
+                      }
+      )
 def create_crypto(data: List[PostData] = Body(..., min_items=1)):
     """
     Create new cryptocurrency price records via Pub/Sub.
-    
-    Args:
-        data: List of PostData objects containing cryptocurrency price information
-        
-    Returns:
-        JSONResponse with appropriate status code and response data
-        
-    Raises:
-        HTTPException: If processing fails
     """
     
     if not data:
@@ -138,15 +129,20 @@ def create_crypto(data: List[PostData] = Body(..., min_items=1)):
             debug(f"Full record to insert: {record}")            
                         
             try:
-                # Publish to Pub/Sub and get message ID
+                # Publish to Pub/Sub and get message ID                            
                 pubsub_message_id = publish_message_to_pubsub(PROJECT_ID, TOPIC_NAME, record)       
                 record_info = {"id": record["id"], "message_id": pubsub_message_id}
                 debug(f"Successfully published record: {record_info}")
                 success_records.append(record_info)
             except Exception as internal_exception: 
-                failure = {"id": record["id"], "error": str(internal_exception), "input_data": [record]}
+                # Create a failure record with the correct structure for your model
+                failure = {
+                    "id": record["id"], 
+                    "error": str(internal_exception), 
+                    "input_data": None  # Or format it correctly as expected by your model
+                }
                 exception(f"Failed to write record: {failure}")
-                failed_records.append(failure)
+                failed_records.append(failure)                
 
         metadata_finish_timestamp = DateTime.now()
         
@@ -162,7 +158,6 @@ def create_crypto(data: List[PostData] = Body(..., min_items=1)):
                 metadata = metadata
             )
             warning(f"Operation succeeded with warnings: {post_return}")
-
             return JSONResponse(status_code = 207, content=post_return.model_dump())
 
         elif success_records and not failed_records:
@@ -171,17 +166,29 @@ def create_crypto(data: List[PostData] = Body(..., min_items=1)):
                 metadata = metadata
             )
             info(f"Operation succeeded without errors: {post_return}")
-
             return JSONResponse(status_code = 201, content=post_return.model_dump())
 
         else:            
-            post_return = ErrorResponse(
-                data     = failed_records,
-                metadata = metadata
-            )
-            error(f"Operation failed: {post_return}")
-            return JSONResponse(status_code = 202, content=post_return.model_dump())
-
+            try:
+                # Make sure your ErrorResponse is correctly structured
+                post_return = ErrorResponse(
+                    data     = failed_records,
+                    metadata = metadata
+                )
+                error(f"Operation failed: {post_return}")
+                return JSONResponse(status_code = 202, content=post_return.model_dump())
+            except Exception as e:
+                # Catch any validation errors in the response creation
+                exception(f"Error creating error response: {e}")
+                # Create a simpler error response that won't fail validation
+                return JSONResponse(
+                    status_code = 202, 
+                    content = {
+                        "status": "error, no records created",
+                        "data": [{"id": record_id, "error": "Processing error"}],
+                        "metadata": {"rows": len(failed_records)}
+                    }
+                )
 
     except Exception as e:
         exception(f"Unhandled exception: {e}")
