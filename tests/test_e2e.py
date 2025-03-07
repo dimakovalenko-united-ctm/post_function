@@ -79,11 +79,11 @@ class TestEndToEndFlow:
             assert "id" in published_data
             assert "insertion_timestamp" in published_data
 
-    def test_failed_post(self, test_client, valid_crypto_payload, mock_pubsub_failure):
+    def test_failed_post_on_pub_sub_level(self, test_client, valid_crypto_payload, mock_pubsub_failure):
         """Test a POST request that fails at the Pub/Sub level."""
         # Make the request
         response = test_client.post("/prices", json=valid_crypto_payload)
-        
+
         # Verify response indicates failure
         assert response.status_code == 202  # Accepted but processing failed
         data = response.json()

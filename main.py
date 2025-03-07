@@ -88,7 +88,7 @@ def publish_message_to_pubsub(project_id, topic_id, message_data: dict):
 
     except Exception as e:
         exception(f"Error publishing message: {e}")
-        raise e
+        raise e  # Make sure to re-raise the exception
 
 @app.post("/prices", responses={
                             201: {"model": SuccessResponse, "description": "All records created successfully"},
@@ -138,15 +138,15 @@ def create_crypto(data: List[PostData] = Body(..., min_items=1)):
             debug(f"Full record to insert: {record}")            
                         
             try:
-                # Publish to Pub/Sub and get message ID                            
+                # Publish to Pub/Sub and get message ID
                 pubsub_message_id = publish_message_to_pubsub(PROJECT_ID, TOPIC_NAME, record)       
                 record_info = {"id": record["id"], "message_id": pubsub_message_id}
                 debug(f"Successfully published record: {record_info}")
                 success_records.append(record_info)
             except Exception as internal_exception: 
-                failure = {"id": record["id"], "error": str(internal_exception), "input_data": record}
+                failure = {"id": record["id"], "error": str(internal_exception), "input_data": [record]}
                 exception(f"Failed to write record: {failure}")
-                failed_records.append(failure)                
+                failed_records.append(failure)
 
         metadata_finish_timestamp = DateTime.now()
         
